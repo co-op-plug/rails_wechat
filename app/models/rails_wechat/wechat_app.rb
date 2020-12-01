@@ -124,6 +124,24 @@ module RailsWechat::WechatApp
     end
   end
 
+  def oauth2_params(scope = 'snsapi_userinfo')
+    {
+        appid: appid,
+        redirect_uri: url_helpers.wechat_app_url(id),
+        response_type: 'code',
+        scope: scope,
+        state: SecureRandom.hex(16)
+    }
+  end
+
+  def generate_oauth2_url(oauth2_params)
+    if oauth2_params[:scope] == 'snsapi_login'
+      "https://open.weixin.qq.com/connect/qrconnect?#{oauth2_params.to_query}#wechat_redirect"
+    else
+      "https://open.weixin.qq.com/connect/oauth2/authorize?#{oauth2_params.to_query}#wechat_redirect"
+    end
+  end
+
   # 小程序
   def sync_wechat_templates
     templates = api.templates

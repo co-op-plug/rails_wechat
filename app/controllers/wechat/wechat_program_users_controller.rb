@@ -12,7 +12,8 @@ class Wechat::WechatProgramUsersController < Wechat::BaseController
       Rails.logger.info info
       wechat_program_user.unionid = info['unionid']
     end
-    
+    @wechat_program_user.update({unionid: info['unionid']})
+
     render json: { token: @wechat_program_user.auth_token(info['session_key']) }
   end
 

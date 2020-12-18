@@ -36,20 +36,47 @@ class Wechat::WechatProgramUsersController < Wechat::BaseController
     phone_number = @wechat_program_user.get_phone_number(params[:encrypted_data], params[:iv], session_key)
     if phone_number
       @account = Account.find_by(identity: phone_number) || Account.create_with_identity(phone_number)
+
+      if @account.user.nil?
+        wechat_user = WechatUser.find_by unionid: wechat_program_user.unionid
+        origin_user = wechat_user.user
+        @wechat_program_user.user = origin_user
+        @wechat_program_user.save
+      end
+
       @account.confirmed = true
       @account.join(name: @wechat_program_user.name, invited_code: params[:invited_code])
-      
+
       @wechat_program_user.account = @account
       current_authorized_token.account = @account
-      
+
       @wechat_program_user.save
       current_authorized_token.save
-      
+
       @wechat_program_user.reload
     else
       current_authorized_token.destroy  # 触发重新授权逻辑
       render :mobile_err, locals: { model: @wechat_program_user }, status: :unprocessable_entity
     end
+
+    # session_key = current_authorized_token.session_key
+    # phone_number = @wechat_program_user.get_phone_number(params[:encrypted_data], params[:iv], session_key)
+    # if phone_number
+    #   @account = Account.find_by(identity: phone_number) || Account.create_with_identity(phone_number)
+    #   @account.confirmed = true
+    #   @account.join(name: @wechat_program_user.name, invited_code: params[:invited_code])
+    #
+    #   @wechat_program_user.account = @account
+    #   current_authorized_token.account = @account
+    #
+    #   @wechat_program_user.save
+    #   current_authorized_token.save
+    #
+    #   @wechat_program_user.reload
+    # else
+    #   current_authorized_token.destroy  # 触发重新授权逻辑
+    #   render :mobile_err, locals: { model: @wechat_program_user }, status: :unprocessable_entity
+    # end
   end
 
   private

@@ -37,12 +37,12 @@ class Wechat::WechatProgramUsersController < Wechat::BaseController
     if phone_number
       @account = Account.find_by(identity: phone_number) || Account.create_with_identity(phone_number)
 
-      if @account.user.nil?
-        wechat_user = WechatUser.find_by unionid: @wechat_program_user.unionid
-        origin_user = wechat_user.user
-        @wechat_program_user.user = origin_user
-        @wechat_program_user.save
-      end
+      # if @account.user.nil?
+      #   wechat_user = WechatUser.find_by unionid: @wechat_program_user.unionid
+      #   origin_user = wechat_user.user
+      #   @wechat_program_user.user = origin_user
+      #   @wechat_program_user.save
+      # end
 
       @account.confirmed = true
       @account.join(name: @wechat_program_user.name, invited_code: params[:invited_code])

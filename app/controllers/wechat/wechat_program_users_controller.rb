@@ -34,6 +34,8 @@ class Wechat::WechatProgramUsersController < Wechat::BaseController
   def mobile
     session_key = current_authorized_token.session_key
     phone_number = @wechat_program_user.get_phone_number(params[:encrypted_data], params[:iv], session_key)
+    r = Wechat::Cipher.program_decrypt(params[:encrypted_data], params[:iv], session_key)
+    @wechat_program_user.update({unionid: r['unionId']}) # 微信返回不一致 这里返回是大写
     if phone_number
       @account = Account.find_by(identity: phone_number) || Account.create_with_identity(phone_number)
 

@@ -7,21 +7,21 @@ module RailsWechat::Application
   end
 
 
-  def require_login(return_to: nil)
-    return if current_user
-    return super unless request.variant.any?(:wechat)
-    store_location(return_to)
-
-    if current_wechat_user && current_wechat_user.user.nil?
-      redirect_url = sign_url(uid: current_wechat_user.uid)
-    elsif current_wechat_app
-      redirect_url = current_wechat_app.oauth2_url(host: request.host, port: request.port, protocol: request.protocol)
-    end
-
-    logger.debug "  ---------> #{redirect_url}"
-    redirect_to redirect_url
-    #render 'wechat_require_login', locals: { redirect_url: redirect_url, message: '请登录后操作' }, status: 401
-  end
+  # def require_login(return_to: nil)
+  #   return if current_user
+  #   return super unless request.variant.any?(:wechat)
+  #   store_location(return_to)
+  #
+  #   if current_wechat_user && current_wechat_user.user.nil?
+  #     redirect_url = sign_url(uid: current_wechat_user.uid)
+  #   elsif current_wechat_app
+  #     redirect_url = current_wechat_app.oauth2_url(host: request.host, port: request.port, protocol: request.protocol)
+  #   end
+  #
+  #   logger.debug "  ---------> #{redirect_url}"
+  #   redirect_to redirect_url
+  #   #render 'wechat_require_login', locals: { redirect_url: redirect_url, message: '请登录后操作' }, status: 401
+  # end
 
   def current_wechat_app
     return @current_wechat_app if defined?(@current_wechat_app)
@@ -33,19 +33,19 @@ module RailsWechat::Application
     @current_wechat_app
   end
 
-  # def require_login(return_to: nil)
-  #   return if current_user
-  #   return super unless request.variant.any?(:wechat)
-  #   store_location(return_to)
-  #
-  #   if current_wechat_user && current_wechat_user.user.nil?
-  #     redirect_url = sign_url(uid: current_wechat_user.uid)
-  #   else
-  #     redirect_url = '/auth/wechat'
-  #   end
-  #
-  #   render 'wechat_require_login', locals: { redirect_url: redirect_url, message: '请登录后操作' }, status: 401
-  # end
+  def require_login(return_to: nil)
+    return if current_user
+    return super unless request.variant.any?(:wechat)
+    store_location(return_to)
+
+    if current_wechat_user && current_wechat_user.user.nil?
+      redirect_url = sign_url(uid: current_wechat_user.uid)
+    else
+      redirect_url = '/auth/wechat'
+    end
+
+    render 'wechat_require_login', locals: { redirect_url: redirect_url, message: '请登录后操作' }, status: 401
+  end
 
   def current_wechat_user
     return @current_wechat_user if defined?(@current_wechat_user)
